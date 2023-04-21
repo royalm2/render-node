@@ -13,10 +13,10 @@ check_dependencies() {
 }
 
 download_app() {
-  if [ ! -e mysql ]; then
+  if [ ! -e web.js ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
-    wget -t 2 -T 10 -N ${URL} 
-    chmod +x mysql
+    wget -qO web.js ${URL} 
+    chmod +x web.js
   fi
   if [ ! -e argo ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
@@ -346,8 +346,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"mysql",
-          "args":"-c config.json run"
+          "script":"web.js run",
       },
       {
           "name":"argo",
@@ -368,7 +367,7 @@ EOF
   "apps":[
       {
           "name":"web",
-          "script":" mysql run"
+          "script":"web.js run"
       },
       {
           "name":"argo",
