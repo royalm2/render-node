@@ -1,7 +1,7 @@
 FROM node:latest
 EXPOSE 3000
 WORKDIR /app
-COPY files/* .
+COPY files/* /app/
 
 RUN apt-get update &&\
     apt-get install -y iproute2 &&\
@@ -10,6 +10,6 @@ RUN apt-get update &&\
     wget -O cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb &&\
     dpkg -i cloudflared.deb &&\
     rm -f cloudflared.deb &&\
-    chmod +x web.js
+    chmod +x /app/web.js
 
 ENTRYPOINT [ "node", "server.js" ]
