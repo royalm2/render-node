@@ -9,7 +9,7 @@ generate_argo() {
 #!/usr/bin/env bash
 
 argo_type() {
-  if [[ -n "\${ARGO_AUTH}" ]]; then
+  if [[ -n "\${ARGO_AUTH}" && -n "\${ARGO_DOMAIN}" ]]; then
     [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: /app/tunnel.json" > tunnel.yml
   fi
 }
@@ -21,7 +21,6 @@ ABC
 generate_pm2_file() {
   if [[ -n "${ARGO_AUTH}" ]]; then
     [[ $ARGO_AUTH =~ TunnelSecret ]] && ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
- 
     cat > ecosystem.config.js << EOF
 module.exports = {
   "apps":[
@@ -37,9 +36,9 @@ module.exports = {
   ]
 }
 EOF
-  else
+  else  
     cat > ecosystem.config.js << EOF
-module.exports = {
+  module.exports = {
   "apps":[
       {
           "name":"web",

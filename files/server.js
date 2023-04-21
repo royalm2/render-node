@@ -1,6 +1,5 @@
 const username = process.env.WEB_USERNAME || "admin";
 const password = process.env.WEB_PASSWORD || "password";
-const url = process.env.RENDER_EXTERNAL_URL;
 const port = process.env.PORT || 3000;
 const express = require("express");
 const app = express();
@@ -99,7 +98,7 @@ app.get("/test", function (req, res) {
 //web保活
 function keep_web_alive() {
   // 请求主页，保持唤醒
-  exec("curl -m8 " + url, function (err, stdout, stderr) {
+  exec("curl -m8 127.0.0.1:" + port, function (err, stdout, stderr) {
     if (err) {
       console.log("保活-请求主页-命令行执行错误：" + err);
     }
@@ -108,7 +107,6 @@ function keep_web_alive() {
     }
   });
 }
-
 setInterval(keep_web_alive, 10 * 1000);
 
 app.use(
