@@ -15,12 +15,12 @@ check_dependencies() {
 download_app() {
   if [ ! -e web.js ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
-    wget -t 2 -T 10 -N -O web.js \${URL} 
+    wget -t 2 -T 10 -N -O web.js ${URL} 
     chmod +x web.js
   fi
   if [ ! -e argo ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
-    wget -t 2 -T 10 -N \${URL} 
+    wget -t 2 -T 10 -N ${URL} 
     chmod +x argo
   fi
 }
