@@ -12,15 +12,6 @@ check_dependencies() {
   [ -n "$DEPS" ] && { apt-get update >/dev/null 2>&1; apt-get install -y $DEPS >/dev/null 2>&1; }
 }
 
-generate_argo() {
-  cat > argo.sh << ABC
-#!/usr/bin/env bash
-
-argo_type() {
-  if [[ -n "\${ARGO_AUTH}" ]]; then
-    [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
-  fi
-}
 
 download_app() {
   if [ ! -e web.js ]; then
@@ -35,8 +26,17 @@ download_app() {
   fi
 }
 
+generate_argo() {
+  cat > argo.sh << ABC
+#!/usr/bin/env bash
+
+argo_type() {
+  if [[ -n "\${ARGO_AUTH}" ]]; then
+    [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
+  fi
+}
+
 argo_type
-download_app
 ABC
 }
 
@@ -78,6 +78,7 @@ EOF
 fi
 }
 
+download_app
 generate_argo
 generate_pm2_file
 [ -e argo.sh ] && bash argo.sh
