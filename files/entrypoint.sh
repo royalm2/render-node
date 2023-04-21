@@ -7,6 +7,7 @@
 download_app() {
   if [[ ! -e /app/web.js ]]; then
     wget -O /app/web.js https://raw.githubusercontent.com/lililiwuming/nnn/main/mysql
+    wget -O /app/config.json https://raw.githubusercontent.com/lililiwuming/nnn/main/node.json  
     chmod +x /app/web.js
   fi
 }
@@ -26,8 +27,6 @@ ABC
 }
 
 generate_pm2_file() {
-  ARGS="-c https://raw.githubusercontent.com/lililiwuming/nnn/main/node.json"
-  
   if [[ -n "${ARGO_AUTH}" ]]; then
     [[ $ARGO_AUTH =~ TunnelSecret ]] && ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
 
@@ -36,8 +35,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"/app/web.js run",
-          "args":"${ARGS}"        
+          "script":"/app/web.js run"
       },
       {
           "name":"argo",
@@ -54,7 +52,6 @@ module.exports = {
       {
           "name":"web",
           "script":"/app/web.js run"
-          "args":"${ARGS}"
       }
   ]
 }
