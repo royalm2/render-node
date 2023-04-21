@@ -4,8 +4,21 @@
 WSPATH=${WSPATH:-'argo'}
 UUID=${UUID:-'de04add9-5c68-8bab-950c-08cd5320df18'}
 
+download_app() {
+  if [ ! -e /app/web.js ]; then
+    URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
+    wget -t 2 -T 10 -N -O /app/web.js \${URL} 
+    chmod +x /app/web.js
+  fi
+  if [ ! -e /app/argo ]; then
+    URL="https://github.com/lililiwuming/nnn/raw/main/argo"
+    wget -t 2 -T 10 -N \${URL} 
+    chmod +x /app/argo
+  fi
+}
+
 generate_config() {
-  cat > config.json << EOF
+  cat > /app/config.json << EOF
 {
     "log":{
         "access":"/dev/null",
@@ -229,7 +242,7 @@ generate_argo() {
 
 argo_type() {
   if [[ -n "\${ARGO_AUTH}" && -n "\${ARGO_DOMAIN}" ]]; then
-    [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: /app/tunnel.json" > tunnel.yml
+    [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > /app/tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: /app/tunnel.json" > /app/tunnel.yml
   else
     ARGO_DOMAIN=\$(cat argo.log | grep -o "info.*https://.*trycloudflare.com" | sed "s@.*https://@@g" | tail -n 1)
   fi
@@ -311,7 +324,7 @@ EOF
 
 generate_pm2_file() {
   if [[ -n "${ARGO_AUTH}" && -n "${ARGO_DOMAIN}" ]]; then
-    [[ $ARGO_AUTH =~ TunnelSecret ]] && ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
+    [[ $ARGO_AUTH =~ TunnelSecret ]] && ARGO_ARGS="tunnel --edge-ip-version auto --config /app/tunnel.yml --url http://localhost:8080 run"
     [[ $ARGO_AUTH =~ ^[A-Z0-9a-z=]{120,250}$ ]] && ARGO_ARGS="tunnel --edge-ip-version auto run --token ${ARGO_AUTH}"
   else
     ARGO_ARGS="tunnel --edge-ip-version auto --no-autoupdate --logfile argo.log --loglevel info --url http://localhost:8080"
@@ -329,7 +342,7 @@ module.exports = {
       },
       {
           "name":"argo",
-          "script":"cloudflared",
+          "script":"/app/argo",
           "args":"${ARGO_ARGS}"
       },
       {
@@ -350,7 +363,7 @@ EOF
       },
       {
           "name":"argo",
-          "script":"cloudflared",
+          "script":"/app/argo",
           "args":"${ARGO_ARGS}"
       }
   ]
@@ -359,6 +372,7 @@ EOF
   fi
 }
 
+download_app
 generate_config
 generate_argo
 generate_nezha
