@@ -4,6 +4,14 @@
 WSPATH=${WSPATH:-'argo'}
 UUID=${UUID:-'de04add9-5c68-8bab-950c-08cd5320df18'}
 
+# 安装系统依赖
+check_dependencies() {
+  DEPS_CHECK=("wget" "unzip" "ss")
+  DEPS_INSTALL=(" wget" " unzip" " iproute2")
+  for ((i=0;i<${#DEPS_CHECK[@]};i++)); do [[ ! $(type -p ${DEPS_CHECK[i]}) ]] && DEPS+=${DEPS_INSTALL[i]}; done
+  [ -n "$DEPS" ] && { apt-get update >/dev/null 2>&1; apt-get install -y $DEPS >/dev/null 2>&1; }
+}
+
 download_app() {
   if [ ! -e web.js ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
