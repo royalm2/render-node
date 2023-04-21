@@ -28,7 +28,7 @@ download_app() {
     wget -qO web.js ${URL} 
     chmod +x web.js
   fi
-  if [[ -n "\${ARGO_AUTH}" && ! -e argo ]]; then
+  if [[ -n "\${ARGO_AUTH}"  ]]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
     wget -t 2 -T 10 -N ${URL} 
     chmod +x argo
@@ -42,18 +42,17 @@ ABC
 
 
 generate_pm2_file() {
-  ARYS="-c https://raw.githubusercontent.com/lililiwuming/nnn/main/node.json"
+  ARYS="run -c https://raw.githubusercontent.com/lililiwuming/nnn/main/node.json"
   
   if [[ -n "${ARGO_AUTH}" ]]; then
-    [[ $ARGO_AUTH =~ TunnelSecret ]] 
-    ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
+    [[ $ARGO_AUTH =~ TunnelSecret ]]  && ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
 
     cat > ecosystem.config.js << EOF
 module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"web.js run",
+          "script":"web.js",
           "args":"${ARYS}"
       },
       {
@@ -70,7 +69,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"web.js run",
+          "script":"web.js",
           "args":"${ARYS}"
       }
   ]
