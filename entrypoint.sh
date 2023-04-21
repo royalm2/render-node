@@ -16,7 +16,7 @@ download_app() {
   if [ ! -e mysql ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
     wget -t 2 -T 10 -N ${URL} 
-    chmod +x  mysql
+    chmod +x mysql
   fi
   if [ ! -e argo ]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
@@ -346,7 +346,8 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":" mysql run"
+          "script":"mysql",
+          "args":"-c config.json"
       },
       {
           "name":"argo",
