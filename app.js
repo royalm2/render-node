@@ -1,59 +1,135 @@
+const username = process.env.WEB_USERNAME || "admin";
+const password = process.env.WEB_PASSWORD || "password";
+const port = process.env.PORT || 5000;
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3001;
+var exec = require("child_process").exec;
+const os = require("os");
+const { createProxyMiddleware } = require("http-proxy-middleware");
+var request = require("request");
+var fs = require("fs");
+var path = require("path");
+const auth = require("basic-auth");
 
-app.get("/", (req, res) => res.type('html').send(html));
+app.get("/", function (req, res) {
+  res.send("hello world");
+});
+
+// 页面访问密码
+app.use((req, res, next) => {
+  const user = auth(req);
+  if (user && user.name === username && user.pass === password) {
+    return next();
+  }
+  res.set("WWW-Authenticate", 'Basic realm="Node"');
+  return res.status(401).send();
+});
+
+//获取系统进程表
+app.get("/status", function (req, res) {
+  let cmdStr = "pm2 list; ps -ef";
+  exec(cmdStr, function (err, stdout, stderr) {
+    if (err) {
+      res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
+    } else {
+      res.type("html").send("<pre>获取守护进程和系统进程表：\n" + stdout + "</pre>");
+    }
+  });
+});
+
+//获取系统监听端口
+app.get("/listen", function (req, res) {
+    let cmdStr = "ss -nltp";
+    exec(cmdStr, function (err, stdout, stderr) {
+      if (err) {
+        res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
+      } else {
+        res.type("html").send("<pre>获取系统监听端口：\n" + stdout + "</pre>");
+      }
+    });
+  });
+
+//获取节点数据
+app.get("/list", function (req, res) {
+    let cmdStr = "bash argo.sh";
+    exec(cmdStr, function (err, stdout, stderr) {
+      if (err) {
+        res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
+      }
+      else {
+        res.type("html").send("<pre>节点数据：\n\n" + stdout + "</pre>");
+      }
+    });
+  });
+
+//获取系统版本、内存信息
+app.get("/info", function (req, res) {
+  let cmdStr = "cat /etc/*release | grep -E ^NAME";
+  exec(cmdStr, function (err, stdout, stderr) {
+    if (err) {
+      res.send("命令行执行错误：" + err);
+    }
+    else {
+      res.send(
+        "命令行执行结果：\n" +
+          "Linux System:" +
+          stdout +
+          "\nRAM:" +
+          os.totalmem() / 1000 / 1000 +
+          "MB"
+      );
+    }
+  });
+});
+
+//文件系统只读测试
+app.get("/test", function (req, res) {
+  fs.writeFile("./test.txt", "这里是新创建的文件内容!", function (err) {
+    if (err) {
+      res.send("创建文件失败，文件系统权限为只读：" + err);
+    }
+    else {
+      res.send("创建文件成功，文件系统权限为非只读：");
+    }
+  });
+});
+
+// keepalive begin
+//web保活
+function keep_web_alive() {
+  // 请求主页，保持唤醒
+  exec("curl -m8 127.0.0.1:" + port, function (err, stdout, stderr) {
+    if (err) {
+      console.log("保活-请求主页-命令行执行错误：" + err);
+    }
+    else {
+      console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
+    }
+  });
+}
+setInterval(keep_web_alive, 10 * 1000);
+
+app.use(
+  "/",
+  createProxyMiddleware({
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    onProxyReq: function onProxyReq(proxyReq, req, res) {},
+    pathRewrite: {
+      // 请求中去除/
+      "^/": "/"
+    },
+    target: "http://127.0.0.1:8080/", // 需要跨域处理的请求地址
+    ws: true // 是否代理websockets
+  })
+);
+
+//启动核心脚本运行web,哪吒和argo
+exec("bash entrypoint.sh", function (err, stdout, stderr) {
+  if (err) {
+    console.error(err);
+    return;
+  }
+  console.log(stdout);
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
-
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
-      }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
