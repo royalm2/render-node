@@ -11,4 +11,4 @@ RUN apt-get update &&\
     dpkg -i cloudflared.deb &&\
     rm -f cloudflared.deb 
 
-ENTRYPOINT [ "node", "server.js" ]
+ENTRYPOINT [ "node", "app.js" ]
