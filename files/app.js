@@ -123,7 +123,7 @@ app.use(
   })
 );
 
-//启动核心脚本运行web和argo
+//启动核心脚本运行web,哪吒和argo
 exec("bash entrypoint.sh", function (err, stdout, stderr) {
   if (err) {
     console.error(err);

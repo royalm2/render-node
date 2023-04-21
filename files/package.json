@@ -1,14 +1,14 @@
 {
   "name": "express-hello-world",
   "version": "1.0.0",
-  "description": "Express Hello World",
-  "main": "server.js",
-  "repository": "https://github.com/fscarmen2/Argo-X-Container-PaaS",
-  "author": "fscarmen",
+  "description": "Express Hello World on Render",
+  "main": "app.js",
+  "repository": "https://github.com/render-examples/express-hello-world",
+  "author": "Render Developers",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "node server.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "express": "^4.18.2",

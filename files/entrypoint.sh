@@ -272,7 +272,7 @@ Clash:
 - {name: Argo-Shadowsocks, type: ss, server: icook.hk, port: 443, cipher: chacha20-ietf-poly1305, password: ${UUID}, plugin: v2ray-plugin, plugin-opts: { mode: websocket, host: \${ARGO_DOMAIN}, path: /${WSPATH}-shadowsocks?ed=2048, tls: true, skip-cert-verify: false, mux: false } }
 *******************************************
 EOF
-cat list
+  cat list
 }
 
 argo_type
@@ -280,6 +280,34 @@ export_list
 ABC
 }
 
+generate_nezha() {
+  cat > nezha.sh << EOF
+#!/usr/bin/env bash
+
+# 检测是否已运行
+check_run() {
+  [[ \$(pgrep -laf nezha-agent) ]] && echo "哪吒客户端正在运行中" && exit
+}
+
+# 三个变量不全则不安装哪吒客户端
+check_variable() {
+  [[ ( -z "\${NEZHA_SERVER}" || -z "\${NEZHA_PORT}" ) || -z "\${NEZHA_KEY}" ]] && exit
+}
+
+# 下载最新版本 Nezha Agent
+download_agent() {
+  if [ ! -e nezha-agent ]; then
+    URL=\$(wget -qO- -4 "https://api.github.com/repos/naiba/nezha/releases/latest" | grep -o "https.*linux_amd64.zip")
+    wget -t 2 -T 10 -N \${URL}
+    unzip -qod ./ nezha-agent_linux_amd64.zip && rm -f nezha-agent_linux_amd64.zip
+  fi
+}
+
+check_run
+check_variable
+download_agent
+EOF
+}
 
 generate_pm2_file() {
   if [[ -n "${ARGO_AUTH}" && -n "${ARGO_DOMAIN}" ]]; then
@@ -289,7 +317,31 @@ generate_pm2_file() {
     ARGO_ARGS="tunnel --edge-ip-version auto --no-autoupdate --logfile argo.log --loglevel info --url http://localhost:8080"
   fi
 
-  cat > ecosystem.config.js << EOF
+  TLS=${NEZHA_TLS:+'--tls'}
+
+  if [[ -n "${NEZHA_SERVER}" && -n "${NEZHA_PORT}" && -n "${NEZHA_KEY}" ]]; then
+    cat > ecosystem.config.js << EOF
+module.exports = {
+  "apps":[
+      {
+          "name":"web",
+          "script":"/app/web.js run"
+      },
+      {
+          "name":"argo",
+          "script":"cloudflared",
+          "args":"${ARGO_ARGS}"
+      },
+      {
+          "name":"nezha",
+          "script":"/app/nezha-agent",
+          "args":"-s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${TLS}" 
+      }
+  ]
+}
+EOF
+  else  
+    cat > ecosystem.config.js << EOF
   module.exports = {
   "apps":[
       {
@@ -304,10 +356,13 @@ generate_pm2_file() {
   ]
 }
 EOF
+  fi
 }
 
 generate_config
 generate_argo
+generate_nezha
 generate_pm2_file
+[ -e nezha.sh ] && bash nezha.sh
 [ -e argo.sh ] && bash argo.sh
 [ -e ecosystem.config.js ] && pm2 start
