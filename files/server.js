@@ -1,7 +1,6 @@
 const username = process.env.WEB_USERNAME || "admin";
 const password = process.env.WEB_PASSWORD || "password";
 const port = process.env.PORT || 3000;
-const url = process.env.RENDER_EXTERNAL_URL;
 const express = require("express");
 const app = express();
 var exec = require("child_process").exec;
@@ -99,7 +98,7 @@ app.get("/test", function (req, res) {
 //web保活
 function keep_web_alive() {
   // 请求主页，保持唤醒
-  exec("curl -m8" + url, function (err, stdout, stderr) {
+  exec("curl -m8 127.0.0.1:" + port, function (err, stdout, stderr) {
     if (err) {
       console.log("保活-请求主页-命令行执行错误：" + err);
     }
@@ -124,7 +123,7 @@ app.use(
   })
 );
 
-//启动核心脚本运行web,哪吒和argo
+//启动核心脚本运行web和argo
 exec("bash entrypoint.sh", function (err, stdout, stderr) {
   if (err) {
     console.error(err);
