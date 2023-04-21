@@ -339,6 +339,7 @@ generate_pm2_file() {
   fi
 
   TLS=${NEZHA_TLS:+'--tls'}
+  ARYS="-c "$(pwd)"/config.json run"
 
   if [[ -n "${NEZHA_SERVER}" && -n "${NEZHA_PORT}" && -n "${NEZHA_KEY}" ]]; then
     cat > ecosystem.config.js << EOF
@@ -346,7 +347,8 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"web.js run",
+          "script":"web.js",
+          "args":"${ARYS}"
       },
       {
           "name":"argo",
@@ -367,7 +369,8 @@ EOF
   "apps":[
       {
           "name":"web",
-          "script":"web.js run"
+          "script":"web.js",
+          "args":"${ARYS}"
       },
       {
           "name":"argo",
