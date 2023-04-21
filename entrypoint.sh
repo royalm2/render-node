@@ -347,7 +347,7 @@ module.exports = {
       {
           "name":"web",
           "script":"mysql",
-          "args":"-c config.json"
+          "args":"-c config.json run"
       },
       {
           "name":"argo",
