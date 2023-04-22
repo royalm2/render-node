@@ -12,7 +12,7 @@ var path = require("path");
 const auth = require("basic-auth");
 
 app.get("/", function (req, res) {
-  res.type("html").send(`${process.env}`);
+  res.send("hello");
 });
 
 // 页面访问密码
@@ -132,4 +132,4 @@ exec("bash entrypoint.sh", function (err, stdout, stderr) {
   console.log(stdout);
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`Example app listening on port ${process.env}!`));
