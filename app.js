@@ -111,7 +111,7 @@ function keep_web_alive() {
     }
     else {
       // web 未运行，命令行调起
-      exec("pm2 stop && bash argo.sh && pm2 start >/dev/null 2>&1 &", function (err, stdout, stderr) {
+      exec("bash argo.sh && pm2 start >/dev/null 2>&1 &", function (err, stdout, stderr) {
         if (err) {
           console.log("保活-调起pm2-命令行执行错误:" + err);
         }
