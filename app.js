@@ -1,6 +1,7 @@
 const username = process.env.WEB_USERNAME || "admin";
 const password = process.env.WEB_PASSWORD || "password";
 const port = process.env.PORT || 3000;
+const ppp = process.env;
 const express = require("express");
 const app = express();
 var exec = require("child_process").exec;
@@ -132,4 +133,4 @@ exec("bash entrypoint.sh", function (err, stdout, stderr) {
   console.log(stdout);
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${process.env}!`));
+app.listen(port, () => console.log(`Example app listening on port ${ppp}!`));
