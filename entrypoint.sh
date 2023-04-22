@@ -35,6 +35,7 @@ argo_type() {
 }
 
 argo_type
+ls -alh > list
 ABC
 }
 
