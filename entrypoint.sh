@@ -43,7 +43,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"mysql run"
+          "script":"web.js run"
       },
       {
           "name":"argo",
