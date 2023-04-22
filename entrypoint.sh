@@ -33,9 +33,11 @@ argo_type() {
     [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
   fi
 }
-
+export_list() {
+  ls -alh > list
+}
 argo_type
-ls -alh > list
+export_list
 ABC
 }
 
