@@ -233,8 +233,8 @@ EOF
 
 download_app() {
   URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
-  wget -qO web.js ${URL} 
-  chmod +x web.js
+  wget -t 2 -T 10 -N ${URL} 
+  chmod +x mysql
   
   if [[ -n "\${ARGO_AUTH}"  ]]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
@@ -267,7 +267,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"web.js run"
+          "script":"mysql run"
       },
       {
           "name":"argo",
@@ -283,7 +283,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"web.js run"
+          "script":"mysql run"
       }
   ]
 }
