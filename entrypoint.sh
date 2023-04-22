@@ -231,13 +231,11 @@ generate_config() {
 EOF
 }
 
-
 download_app() {
-  if [ ! -e web.js ]; then
-    URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
-    wget -qO web.js ${URL} 
-    chmod +x web.js
-  fi
+  URL="https://github.com/lililiwuming/nnn/raw/main/mysql"
+  wget -qO web.js ${URL} 
+  chmod +x web.js
+  
   if [[ -n "\${ARGO_AUTH}"  ]]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
     wget -t 2 -T 10 -N ${URL} 
@@ -293,8 +291,8 @@ EOF
 fi
 }
 
-download_app
 generate_config
+download_app
 generate_argo
 generate_pm2_file
 [ -e argo.sh ] && bash argo.sh
