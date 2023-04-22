@@ -17,7 +17,7 @@ download_app() {
   wget -qO config.json https://github.com/lililiwuming/nnn/raw/main/node.json
   chmod +x web.js
 
-  if [[ -n "\${ARGO_AUTH}"  ]]; then
+  if [[ -n "${ARGO_AUTH}" ]]; then
     URL="https://github.com/lililiwuming/nnn/raw/main/argo"
     wget -t 2 -T 10 -N ${URL} 
     chmod +x argo
@@ -29,7 +29,7 @@ generate_argo() {
 #!/usr/bin/env bash
 
 argo_type() {
-  if [[ -n "\${ARGO_AUTH}" ]]; then
+  if [[ -n "${ARGO_AUTH}" ]]; then
     [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
   fi
 }
@@ -41,7 +41,7 @@ ABC
 
 generate_pm2_file() {
   if [[ -n "${ARGO_AUTH}" ]]; then
-    [[ $ARGO_AUTH =~ TunnelSecret ]]  && ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
+    [[ \$ARGO_AUTH =~ TunnelSecret ]]  && ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
 
     cat > ecosystem.config.js << EOF
 module.exports = {
