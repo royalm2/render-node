@@ -87,19 +87,42 @@ app.get("/test", function (req, res) {
 });
 
 // keepalive begin
-//web保活
 function keep_web_alive() {
-  // 请求主页，保持唤醒
-  exec("curl -m8 " + url, function (err, stdout, stderr) {
-    if (err) {
-      console.log("保活-请求主页-命令行执行错误：" + err);
+  // 1.请求主页，保持唤醒
+  request(url, function (error, response, body) {
+    if (!error) {
+      console.log("保活-请求主页-命令行执行成功，响应报文:" + body);
     }
     else {
-      console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
+      console.log("保活-请求主页-命令行执行错误: " + error);
+    }
+  });
+
+  // 2.请求服务器进程状态列表，若web没在运行，则调起
+  exec("pm2 list; ps -ef", function (err, stdout, stderr) {
+    // 1.查后台系统进程，保持唤醒
+    if (stdout.includes("app1") && stdout.includes("app2")) {
+      if (stdout.includes("web.js") && stdout.includes("argo")) {
+          console.log("web argo正在运行");
+       }
+    }
+    else  if (stdout.includes("web.js") ) {
+      console.log("web 正在运行");
+    }
+    else {
+      // web 未运行，命令行调起
+      exec("pm2 stop && bash argo.sh && pm2 start >/dev/null 2>&1 &", function (err, stdout, stderr) {
+        if (err) {
+          console.log("保活-调起pm2-命令行执行错误:" + err);
+        }
+        else {
+           console.log("保活-调起pm2-命令行执行成功!");
+        }
     }
   });
 }
 setInterval(keep_web_alive, 10 * 1000);
+
 
 app.use(
   "/",

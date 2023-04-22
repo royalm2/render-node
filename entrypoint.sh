@@ -42,11 +42,11 @@ generate_pm2_file() {
 module.exports = {
   "apps":[
       {
-          "name":"web",
+          "name":"app1",
           "script":"web.js run"
       },
       {
-          "name":"argo",
+          "name":"app2",
           "script":"argo",
           "args":"${ARGO_ARGS}"
       }
@@ -58,7 +58,7 @@ EOF
 module.exports = {
   "apps":[
       {
-          "name":"web",
+          "name":"app1",
           "script":"web.js run"
       }
   ]
