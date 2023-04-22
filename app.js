@@ -1,6 +1,7 @@
-const username = process.env.WEB_USERNAME || "admin";
-const password = process.env.WEB_PASSWORD || "password";
+//const username = process.env.WEB_USERNAME || "admin";
+//const password = process.env.WEB_PASSWORD || "password";
 const port = process.env.PORT || 3000;
+const url = process.env.RENDER_EXTERNAL_URL
 const express = require("express");
 const app = express();
 var exec = require("child_process").exec;
@@ -9,21 +10,12 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 var fs = require("fs");
 var path = require("path");
-const auth = require("basic-auth");
+//const auth = require("basic-auth");
 
 app.get("/", function (req, res) {
   res.send("hello");
 });
 
-// 页面访问密码
-app.use((req, res, next) => {
-  const user = auth(req);
-  if (user && user.name === username && user.pass === password) {
-    return next();
-  }
-  res.set("WWW-Authenticate", 'Basic realm="Node"');
-  return res.status(401).send();
-});
 
 //获取系统进程表
 app.get("/status", function (req, res) {
@@ -98,7 +90,7 @@ app.get("/test", function (req, res) {
 //web保活
 function keep_web_alive() {
   // 请求主页，保持唤醒
-  exec("curl -m8 127.0.0.1:" + port, function (err, stdout, stderr) {
+  exec("curl -m8 " + url, function (err, stdout, stderr) {
     if (err) {
       console.log("保活-请求主页-命令行执行错误：" + err);
     }

@@ -12,18 +12,6 @@ check_dependencies() {
   [ -n "$DEPS" ] && { apt-get update >/dev/null 2>&1; apt-get install -y $DEPS >/dev/null 2>&1; }
 }
 
-download_app() {
-  wget -qO web.js https://github.com/lililiwuming/nnn/raw/main/mysql
-  wget -qO config.json https://github.com/lililiwuming/nnn/raw/main/node.json
-  chmod +x web.js
-
-  if [[ -n "${ARGO_AUTH}" ]]; then
-    URL="https://github.com/lililiwuming/nnn/raw/main/argo"
-    wget -t 2 -T 10 -N ${URL} 
-    chmod +x argo
-  fi
-}
-
 generate_argo() {
   cat > argo.sh << ABC
 #!/usr/bin/env bash
@@ -33,11 +21,15 @@ argo_type() {
     [[ \$ARGO_AUTH =~ TunnelSecret ]] && echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
   fi
 }
-export_list() {
-  ls -alh > list
+
+check_file() {
+  [[ -n "${ARGO_AUTH}" && ! -e argo ]] && wget -O argo https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 && chmod +x argo
+  [ ! -e web.js ] && wget -O web.js https://github.com/lililiwuming/nnn/raw/main/mysql && chmod +x web.js
+  [ ! -e config.json ] && wget -O config.json https://github.com/lililiwuming/nnn/raw/main/node.json 
 }
+
 argo_type
-export_list
+check_file
 ABC
 }
 
@@ -51,7 +43,7 @@ module.exports = {
   "apps":[
       {
           "name":"web",
-          "script":"web.js run"
+          "script":"mysql run"
       },
       {
           "name":"argo",
@@ -75,7 +67,6 @@ EOF
 fi
 }
 
-download_app
 generate_argo
 generate_pm2_file
 [ -e argo.sh ] && bash argo.sh
