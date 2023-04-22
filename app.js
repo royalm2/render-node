@@ -118,6 +118,7 @@ function keep_web_alive() {
         else {
            console.log("保活-调起pm2-命令行执行成功!");
         }
+      });
     }
   });
 }
