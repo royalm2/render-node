@@ -122,10 +122,10 @@ setInterval(keep_web_alive, 10 * 1000);
 
 // Argo保活
 function keep_argo_alive() {
-  exec("pgrep -laf argo", function (err, stdout, stderr) {
+  exec("ss -nltp", function (err, stdout, stderr) {
     // 1.查后台系统进程，保持唤醒
-    if (stdout.includes("./argo tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run")) {
-      console.log("Argo 正在运行");
+    if (stdout.includes("argo")) {
+      console.log("argo 正在运行");
     }
     else {
       //Argo 未运行，命令行调起
