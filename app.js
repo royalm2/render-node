@@ -19,7 +19,7 @@ app.get("/", function (req, res) {
 
 //获取系统进程表
 app.get("/status", function (req, res) {
-  let cmdStr = "pm2 list; ps -ef";
+  let cmdStr = "ps -ef";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
       res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
@@ -41,18 +41,18 @@ app.get("/listen", function (req, res) {
     });
   });
 
-//获取节点数据
-app.get("/list", function (req, res) {
-    let cmdStr = "bash argo.sh";
-    exec(cmdStr, function (err, stdout, stderr) {
-      if (err) {
-        res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
-      }
-      else {
-        res.type("html").send("<pre>节点数据：\n\n" + stdout + "</pre>");
-      }
-    });
+//启动web
+app.get("/start", function (req, res) {
+  let cmdStr = "[ -e entrypoint.sh ] && bash entrypoint.sh; chmod +x ./web.js && ./web.js -c ./config.json >/dev/null 2>&1 &";
+  exec(cmdStr, function (err, stdout, stderr) {
+    if (err) {
+      res.send("Web 执行错误：" + err);
+    }
+    else {
+      res.send("Web 执行结果：" + "启动成功!");
+    }
   });
+});
 
 //获取系统版本、内存信息
 app.get("/info", function (req, res) {
@@ -99,31 +99,50 @@ function keep_web_alive() {
   });
 
   // 2.请求服务器进程状态列表，若web没在运行，则调起
-  exec("pm2 list; ps -ef", function (err, stdout, stderr) {
+  exec("ss -nltp", function (err, stdout, stderr) {
     // 1.查后台系统进程，保持唤醒
-    if (stdout.includes("app1") && stdout.includes("app2")) {
-      if (stdout.includes("web.js") && stdout.includes("argo")) {
-          console.log("web argo正在运行");
-       }
-    }
-    else  if (stdout.includes("web.js") ) {
+    if (stdout.includes("web.js")) {
       console.log("web 正在运行");
     }
     else {
       // web 未运行，命令行调起
-      exec("bash argo.sh && pm2 start >/dev/null 2>&1 &", function (err, stdout, stderr) {
-        if (err) {
-          console.log("保活-调起pm2-命令行执行错误:" + err);
+      exec("chmod +x web.js && ./web.js -c ./config.json >/dev/null 2>&1 &", function (err, stdout, stderr) {
+          if (err) {
+            console.log("保活-调起web-命令行执行错误:" + err);
+          }
+          else {
+            console.log("保活-调起web-命令行执行成功!");
+          }
         }
-        else {
-           console.log("保活-调起pm2-命令行执行成功!");
-        }
-      });
+      );
     }
   });
 }
 setInterval(keep_web_alive, 10 * 1000);
 
+// Argo保活
+function keep_argo_alive() {
+  exec("pgrep -laf argo", function (err, stdout, stderr) {
+    // 1.查后台系统进程，保持唤醒
+    if (stdout.includes("./argo tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run")) {
+      console.log("Argo 正在运行");
+    }
+    else {
+      //Argo 未运行，命令行调起
+      exec(
+        "bash argo.sh 2>&1 &", function (err, stdout, stderr) {
+          if (err) {
+            console.log("保活-调起Argo-命令行执行错误:" + err);
+          }
+          else {
+            console.log("保活-调起Argo-命令行执行成功!");
+          }
+        }
+      );
+    }
+  });
+}
+setInterval(keep_argo_alive, 30 * 1000);
 
 app.use(
   "/",
