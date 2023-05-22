@@ -13,7 +13,7 @@ var path = require("path");
 //const auth = require("basic-auth");
 
 app.get("/", function (req, res) {
-  res.ststus(200).send("hello");
+  res.send("hello");
 });
 
 
