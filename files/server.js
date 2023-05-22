@@ -13,7 +13,8 @@ var path = require("path");
 const auth = require("basic-auth");
 
 app.get("/", function (req, res) {
-  res.send("hello world");
+  //res.send("hello world");
+  res.status(200).send("hello world");
 });
 
 // 页面访问密码
@@ -27,28 +28,28 @@ app.use((req, res, next) => {
 });
 
 //获取系统进程表
-app.get("/status", function (req, res) {
-  let cmdStr = "pm2 list; ps -ef";
-  exec(cmdStr, function (err, stdout, stderr) {
-    if (err) {
-      res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
-    } else {
-      res.type("html").send("<pre>获取守护进程和系统进程表：\n" + stdout + "</pre>");
-    }
-  });
-});
+//app.get("/status", function (req, res) {
+//  let cmdStr = "pm2 list; ps -ef";
+//  exec(cmdStr, function (err, stdout, stderr) {
+//    if (err) {
+//      res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
+//    } else {
+//      res.type("html").send("<pre>获取守护进程和系统进程表：\n" + stdout + "</pre>");
+//    }
+//  });
+//});
 
 //获取系统监听端口
-app.get("/listen", function (req, res) {
-    let cmdStr = "ss -nltp";
-    exec(cmdStr, function (err, stdout, stderr) {
-      if (err) {
-        res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
-      } else {
-        res.type("html").send("<pre>获取系统监听端口：\n" + stdout + "</pre>");
-      }
-    });
-  });
+//app.get("/listen", function (req, res) {
+//    let cmdStr = "ss -nltp";
+//    exec(cmdStr, function (err, stdout, stderr) {
+//      if (err) {
+//        res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
+//      } else {
+//        res.type("html").send("<pre>获取系统监听端口：\n" + stdout + "</pre>");
+//      }
+//    });
+//  });
 
 //获取节点数据
 app.get("/list", function (req, res) {
@@ -64,52 +65,52 @@ app.get("/list", function (req, res) {
   });
 
 //获取系统版本、内存信息
-app.get("/info", function (req, res) {
-  let cmdStr = "cat /etc/*release | grep -E ^NAME";
-  exec(cmdStr, function (err, stdout, stderr) {
-    if (err) {
-      res.send("命令行执行错误：" + err);
-    }
-    else {
-      res.send(
-        "命令行执行结果：\n" +
-          "Linux System:" +
-          stdout +
-          "\nRAM:" +
-          os.totalmem() / 1000 / 1000 +
-          "MB"
-      );
-    }
-  });
-});
+//app.get("/info", function (req, res) {
+//  let cmdStr = "cat /etc/*release | grep -E ^NAME";
+//  exec(cmdStr, function (err, stdout, stderr) {
+//    if (err) {
+//      res.send("命令行执行错误：" + err);
+//    }
+//    else {
+//      res.send(
+//       "命令行执行结果：\n" +
+//          "Linux System:" +
+//         stdout +
+//          "\nRAM:" +
+//          os.totalmem() / 1000 / 1000 +
+//          "MB"
+//      );
+//    }
+//  });
+//});
 
 //文件系统只读测试
-app.get("/test", function (req, res) {
-  fs.writeFile("./test.txt", "这里是新创建的文件内容!", function (err) {
-    if (err) {
-      res.send("创建文件失败，文件系统权限为只读：" + err);
-    }
-    else {
-      res.send("创建文件成功，文件系统权限为非只读：");
-    }
-  });
-});
+//app.get("/test", function (req, res) {
+//  fs.writeFile("./test.txt", "这里是新创建的文件内容!", function (err) {
+//    if (err) {
+//      res.send("创建文件失败，文件系统权限为只读：" + err);
+//    }
+//    else {
+//      res.send("创建文件成功，文件系统权限为非只读：");
+//    }
+//  });
+//});
 
 // keepalive begin
 //web保活
-function keep_web_alive() {
+//function keep_web_alive() {
   // 请求主页，保持唤醒
-  exec("curl -m8 " + url, function (err, stdout, stderr) {
-    if (err) {
-      console.log("保活-请求主页-命令行执行错误：" + err);
-    }
-    else {
-      console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
-    }
-  });
-}
+//  exec("curl -m8 " + url, function (err, stdout, stderr) {
+//    if (err) {
+//      console.log("保活-请求主页-命令行执行错误：" + err);
+//    }
+//    else {
+//      console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
+//    }
+//  });
+//}
 
-setInterval(keep_web_alive, 10 * 1000);
+//setInterval(keep_web_alive, 10 * 1000);
 
 app.use(
   "/",
