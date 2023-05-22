@@ -255,4 +255,4 @@ EOF
 check_dependencies
 generate_config
 generate_web
-[ -e web.sh ] && bash web.sh >2>&1 &
+[ -e web.sh ] && bash web.sh >/dev/null 2>&1 &
