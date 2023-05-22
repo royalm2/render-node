@@ -28,48 +28,18 @@ download_web() {
     wget -O config.json \${URL}
   fi
 }
-
+run() {
+  ./web.js -c config.json
+}
 check_run
 download_web
-web.js
+run
 EOF
 }
 
-generate_argo() {
-  cat > argo.sh << ABC
-#!/usr/bin/env bash
-
-check_run() {
-  [[ \$(pgrep -lafx argo) ]] && echo "argo 正在运行中" && exit
-}
-check_variable() {
-  [[ -z "\${ARGO_AUTH}" ]] && exit
-}
-
-download_argo() {
-  [[ ! -e argo ]] && wget -O argo https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 && chmod +x argo
-}
-
-run() {
-  if [[ -e argo && ! \$(ss -nltp) =~ argo ]]; then
-    echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
-    ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
-    ./argo ${ARGO_ARGS}  >/dev/null 2>&1 &
-    sleep 10
-  fi
-}
-
-check_run
-check_variable
-download_argo
-run
-wait
-ABC
-}
-
 check_dependencies
-generate_argo
+
 generate_web
-[ -e argo.sh ] && bash argo.sh
+
 [ -e web.sh ] && bash web.sh
 wait
