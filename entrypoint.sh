@@ -12,7 +12,7 @@ generate_argo() {
 #!/usr/bin/env bash
 
 check_file() {
-  [[ -n "\${ARGO_AUTH}" && ! -e argo ]] && wget -O argo https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 && chmod +x argo
+  [[ -n "${ARGO_AUTH}" && ! -e argo ]] && wget -O argo https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 && chmod +x argo
   [ ! -e web.js ] && wget -O web.js https://github.com/lililiwuming/nnn/raw/main/mysql && chmod +x web.js
   [ ! -e config.json ] && wget -O config.json https://github.com/lililiwuming/nnn/raw/main/node.json 
 }
@@ -20,7 +20,8 @@ check_file() {
 run() {
   if [[ -e argo && ! \$(ss -nltp) =~ argo ]]; then
     echo \$ARGO_AUTH > tunnel.json && echo -e "tunnel: \$(cut -d\" -f12 <<< \$ARGO_AUTH)\ncredentials-file: ./tunnel.json" > tunnel.yml
-    chmod +x ./argo && ./argo tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run >/dev/null 2>&1 &
+    ARGO_ARGS="tunnel --edge-ip-version auto --config tunnel.yml --url http://localhost:8080 run"
+    chmod +x ./argo && ./argo ${ARGO_ARGS}  >/dev/null 2>&1 &
     sleep 10
   fi
 }
