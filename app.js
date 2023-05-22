@@ -27,7 +27,7 @@ app.post("/bash", (req, res) => {
     if (err) {
       res.type("html").send("<pre>命令行执行错误:\n" + err + "</pre>");
       }else{
-        res.type(“html”).send("<pre>" + stdout + "</pre>");
+        res.type("html").send("<pre>" + stdout + "</pre>");
       }
   });
 });
