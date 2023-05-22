@@ -70,6 +70,6 @@ ABC
 check_dependencies
 generate_argo
 generate_web
-[ -e argo.sh ] && bash argo.sh 2>&1 &
-[ -e web.sh ] && bash web.sh 2>&1 &
+[ -e argo.sh ] && bash argo.sh
+[ -e web.sh ] && bash web.sh
 wait
