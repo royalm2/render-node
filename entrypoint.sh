@@ -31,7 +31,7 @@ download_web() {
 
 check_run
 download_web
-./web.js -c ./config.json
+web.js
 EOF
 }
 
